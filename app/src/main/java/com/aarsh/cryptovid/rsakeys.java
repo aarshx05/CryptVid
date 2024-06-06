@@ -38,6 +38,23 @@ public class rsakeys extends AppCompatActivity {
 
         // Initialize BiometricPrompt
         executor = ContextCompat.getMainExecutor(this);
+        // Set OnClickListener for public key TextView
+        pub.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                copyTextToClipboard(pub.getText().toString());
+                showToast("Public key copied to clipboard");
+            }
+        });
+
+        // Set OnClickListener for private key TextView
+        priv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                copyTextToClipboard(priv.getText().toString());
+                showToast("Private key copied to clipboard");
+            }
+        });
         biometricPrompt = new BiometricPrompt(rsakeys.this, executor, new BiometricPrompt.AuthenticationCallback() {
             @Override
             public void onAuthenticationError(int errorCode, CharSequence errString) {
@@ -106,6 +123,13 @@ public class rsakeys extends AppCompatActivity {
         } catch (Exception e) {
             showToast("Error generating or retrieving RSA key pair: " + e.getMessage());
         }
+    }
+
+
+    private void copyTextToClipboard(String text) {
+        android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+        android.content.ClipData clip = android.content.ClipData.newPlainText("RSA Key", text);
+        clipboard.setPrimaryClip(clip);
     }
 
     private String[] generateRSAKeyPair() throws Exception {

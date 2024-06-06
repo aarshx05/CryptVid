@@ -1,6 +1,7 @@
 package com.aarsh.cryptovid;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.media.MediaCodec;
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
@@ -16,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.Manifest;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -41,6 +43,7 @@ import java.security.spec.X509EncodedKeySpec;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.biometric.BiometricPrompt;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import java.io.IOException;
@@ -60,6 +63,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final int REQUEST_READ_EXTERNAL_STORAGE = 100;
     private static final int PICK_VIDEO_REQUEST = 1;
     private static final int PICK_TEXT_FILE_REQUEST = 2;
     private static final int CREATE_VIDEO_FILE_REQUEST = 3;
@@ -99,15 +103,40 @@ public class MainActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         keytxt = findViewById(R.id.genKey);
         generateRSAKeyPairButton = findViewById(R.id.generateRSAButton);
+
+        // Check for READ_EXTERNAL_STORAGE permission
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_READ_EXTERNAL_STORAGE);
+        } else {
+            handleIncomingIntent();
+        }
+
+        // Set OnClickListener to clear EditText's text when clicked
+        keytxt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                keytxt.setText("");
+            }
+        });
+
+        // Set OnFocusChangeListener to clear EditText's text when focused
+        keytxt.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    keytxt.setText("");
+                }
+            }
+        });
+
         generateRSAKeyPairButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, rsakeys.class);
                 startActivity(intent);
             }
-
-
         });
+
         selectVideoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -129,7 +158,11 @@ public class MainActivity extends AppCompatActivity {
         convertToVideoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                openFileChooser(PICK_TEXT_FILE_REQUEST, "text/*");
+                if (selectedTextFileUri != null) {
+                    createFileChooser(CREATE_VIDEO_FILE_REQUEST, "video/*", "sample.mp4");
+                } else {
+                    Toast.makeText(MainActivity.this, "No text file selected", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -141,21 +174,63 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_READ_EXTERNAL_STORAGE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                handleIncomingIntent();
+            } else {
+                Toast.makeText(this, "Permission denied to read external storage", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void handleIncomingIntent() {
+        Intent intent = getIntent();
+        if (Intent.ACTION_VIEW.equals(intent.getAction()) && intent.getData() != null) {
+            Uri fileUri = intent.getData();
+            handleJacFile(fileUri);
+        }
+    }
+
+    private void handleJacFile(Uri fileUri) {
+        if (fileUri != null) {
+            selectedTextFileUri = fileUri;
+            Toast.makeText(this, "Text file selected: " + fileUri.getPath(), Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Error: .jac file URI is null", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
 
     private void openFileChooser(int requestCode, String mimeType) {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.setType(mimeType);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
+        if (requestCode == PICK_TEXT_FILE_REQUEST) {
+            // To allow the selection of .jac files, use "*/*" as the MIME type
+            intent.setType("*/*");
+            String[] mimeTypes = {"text/plain", "application/octet-stream"};
+            intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+        }
         startActivityForResult(intent, requestCode);
     }
+
 
     private void createFileChooser(int requestCode, String mimeType, String fileName) {
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         intent.setType(mimeType);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
+        // Change the file extension from .txt to .jac
+        if (requestCode == CREATE_TEXT_FILE_REQUEST) {
+            fileName = fileName.replace(".txt", ".jac");
+        }
         intent.putExtra(Intent.EXTRA_TITLE, fileName);
         startActivityForResult(intent, requestCode);
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -170,14 +245,22 @@ public class MainActivity extends AppCompatActivity {
                 createFileUri = uri;
                 compressAndConvertVideoToByteArray(selectedVideoUri);
             } else if (requestCode == PICK_TEXT_FILE_REQUEST) {
-                selectedTextFileUri = uri;
-                createFileChooser(CREATE_VIDEO_FILE_REQUEST, "video/*", "sample.mp4");
+                String uriString = uri.toString();
+                if (uriString.endsWith(".jac")) {
+                    selectedTextFileUri = uri;
+                    Toast.makeText(this, "Text file selected: " + uri.getPath(), Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "Please select a .jac file", Toast.LENGTH_SHORT).show();
+                }
             } else if (requestCode == CREATE_VIDEO_FILE_REQUEST) {
                 createFileUri = uri;
                 convertBase64StringToVideo();
             }
         }
     }
+
+
+
 
     private void showProgressBar() {
         progressBar.setVisibility(View.VISIBLE);
@@ -432,6 +515,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
     private void shareFileViaWhatsApp(Uri uri) {
         // Create an Intent to share the file via WhatsApp
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
@@ -466,7 +550,7 @@ public class MainActivity extends AppCompatActivity {
 
                 String base64VideoString = base64String.substring(separatorIndex + 1);
                 byte[] videoBytes = Base64.decode(base64VideoString, Base64.DEFAULT);
-                byte[] fvarray = decryptAES(videoBytes,encryptedKey);
+                byte[] fvarray = decryptAES(videoBytes, encryptedKey);
                 saveByteArrayAsVideo(fvarray, createFileUri);
                 runOnUiThread(() -> {
                     Toast.makeText(this, "Base64 string converted to video and saved as sample.mp4", Toast.LENGTH_SHORT).show();
@@ -486,6 +570,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }).start();
     }
+
 
     private String readStringFromFile(Uri uri) throws IOException {
         InputStream inputStream = getContentResolver().openInputStream(uri);
