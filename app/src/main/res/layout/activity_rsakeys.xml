@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_img_render"
+    tools:context=".MainActivity">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/generateRSA"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Get RSA Keys"
+                android:layout_marginTop="20dp"
+                android:textColor="#e5e0e4"
+                android:backgroundTint="#eb5568"
+                android:layout_centerHorizontal="true"/>
+
+            <TextView
+                android:id="@+id/txtholderpublic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/generateRSA"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="10dp"
+                android:text="Public Key:"
+                android:textColor="#e5e0e4"
+                android:textIsSelectable="true"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/public_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:layout_margin="10dp"
+                android:layout_below="@id/txtholderpublic"
+                android:textIsSelectable="true"
+                android:textSize="18sp"
+                android:layout_marginTop="20dp"
+             />
+
+            <TextView
+                android:textColor="#e5e0e4"
+                android:id="@+id/txtholderprivate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/public_tv"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="10dp"
+                android:text="Private Key:"
+                android:textIsSelectable="true"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/priv_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textIsSelectable="true"
+                android:textSize="18sp"
+                android:layout_margin="10dp"
+                android:layout_below="@id/txtholderprivate"
+                android:layout_marginTop="20dp"
+               />
+
+        </RelativeLayout>
+    </ScrollView>
+</RelativeLayout>

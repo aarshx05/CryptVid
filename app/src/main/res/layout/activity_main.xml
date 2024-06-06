@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_img_render">
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <!-- Button to select video -->
+
+
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="center"
+        android:layout_marginTop="40dp">
+        <ImageView
+            android:id="@+id/selectVideoButton"
+            android:src="@drawable/sel_vid"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:text="Select Video"
+            android:clickable="true"
+            android:layout_marginRight="20dp"   />
+
+        <ImageView
+            android:id="@+id/selectTextFileButton"
+            android:layout_width="80dp"
+            android:src="@drawable/sel_file"
+            android:layout_height="80dp"
+            android:text="Select Text File"
+            android:layout_marginLeft="20dp" />
+    </LinearLayout>
+    <!-- Button to convert to byte array -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="center"
+        android:layout_marginTop="40dp">
+        <Button
+            android:id="@+id/convertToByteArrayButton"
+            android:layout_width="wrap_content"
+            android:textColor="#e5e0e4"
+            android:backgroundTint="#eb5568"
+            android:layout_height="wrap_content"
+            android:text="Convert to Base64"
+            android:layout_marginRight="10dp" />
+
+        <!-- Button to convert byte array to video -->
+
+        <!-- Progress bar -->
+        <Button
+            android:id="@+id/convertToVideoButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#e5e0e4"
+            android:backgroundTint="#eb5568"
+            android:text="Convert to Video"
+            android:layout_marginLeft="10dp"/>
+    </LinearLayout>
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+    <EditText
+        android:layout_margin="20dp"
+        android:id="@+id/genKey"
+        android:padding="12dp"
+        android:textSize="18dp"
+        android:textColor="#e5e0e4"
+        android:textIsSelectable="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Public/Private Key to Go!!" />
+
+
+
+    <ImageView
+        android:id="@+id/generateRSAButton"
+        android:layout_margin="10dp"
+        android:layout_width="70dp"
+        android:layout_gravity="center"
+        android:clickable="true"
+        android:src="@drawable/r_keys"
+        android:layout_height="70dp"
+         />
+
+
+
+
+
+</LinearLayout>
+</ScrollView>
