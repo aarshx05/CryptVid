@@ -75,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String ANDROID_KEYSTORE = "AndroidKeyStore";
 
     private TextView textView;
+    private TextView largeFiles;
     private KeyStore keyStore;
     private Cipher cipher;
     private ImageView selectVideoButton;
@@ -102,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
         convertToVideoButton = findViewById(R.id.convertToVideoButton);
         selectTextFileButton = findViewById(R.id.selectTextFileButton);
         progressBar = findViewById(R.id.progressBar);
+        largeFiles=findViewById(R.id.largerFiles);
         keytxt = findViewById(R.id.genKey);
         generateRSAKeyPairButton = findViewById(R.id.generateRSAButton);
 
@@ -111,6 +113,14 @@ public class MainActivity extends AppCompatActivity {
         } else {
             handleIncomingIntent();
         }
+
+        largeFiles.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, LargeFilesHandler.class);
+                startActivity(intent);
+            }
+        });
 
         // Set OnClickListener to clear EditText's text when clicked
         keytxt.setOnClickListener(new View.OnClickListener() {
@@ -248,12 +258,12 @@ public class MainActivity extends AppCompatActivity {
                 compressAndConvertVideoToByteArray(selectedVideoUri);
             } else if (requestCode == PICK_TEXT_FILE_REQUEST) {
                 String uriString = uri.toString();
-                if (uriString.endsWith(".jac")) {
+                //if (uriString.endsWith(".jac")) {
                     selectedTextFileUri = uri;
-                    Toast.makeText(this, "Text file selected: " + uri.getPath(), Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(this, "Please select a .jac file", Toast.LENGTH_SHORT).show();
-                }
+               //     Toast.makeText(this, "Text file selected: " + uri.getPath(), Toast.LENGTH_SHORT).show();
+                //} //else {
+                 //   Toast.makeText(this, "Please select a .jac file", Toast.LENGTH_SHORT).show();
+                //}
             } else if (requestCode == CREATE_VIDEO_FILE_REQUEST) {
                 createFileUri = uri;
                 convertBase64StringToVideo();
@@ -265,13 +275,11 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void showProgressBar() {
-        runOnUiThread(() -> {
-            progressBar.setVisibility(View.VISIBLE);
-            progressBar.setProgress(0);  // Reset progress to 0 when showing the ProgressBar
-        });
+        progressBar.setVisibility(View.VISIBLE);
     }
+
     private void hideProgressBar() {
-        runOnUiThread(() -> progressBar.setVisibility(View.GONE));
+        progressBar.setVisibility(View.GONE);
     }
 
     SecretKey key;
@@ -283,6 +291,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void compressAndConvertVideoToByteArray(Uri videoUri) {
         showProgressBar();
+        Log.d(TAG,"Started");
         new Thread(() -> {
             try {
                 // Initialize the encryption key
@@ -324,10 +333,6 @@ public class MainActivity extends AppCompatActivity {
                     // Append identifiers, encrypted key, and encrypted chunk to final string
                     finalStringBuilder.append("PART_").append(i + 1).append("_AES_KEY:")
                             .append(encryptedKey).append("|").append(base64Chunk).append("||");
-
-                    // Update the ProgressBar
-                    final int progress = (int) ((i + 1) * 100.0 / numberOfChunks);
-                    runOnUiThread(() -> progressBar.setProgress(progress));
                 }
 
                 // Save the final string to a file
@@ -350,6 +355,7 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(this, "Error during encryption", Toast.LENGTH_SHORT).show();
                 });
             } finally {
+                Log.d(TAG,"Ended");
                 runOnUiThread(this::hideProgressBar);
             }
         }).start();
@@ -572,9 +578,7 @@ public class MainActivity extends AppCompatActivity {
                 // Prepare a byte array output stream to collect the decrypted video data
                 ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
-                // Use a regular for loop to have access to the index i
-                for (int i = 0; i < parts.length; i++) {
-                    String part = parts[i];
+                for (String part : parts) {
                     if (part.isEmpty()) {
                         continue;
                     }
@@ -599,12 +603,7 @@ public class MainActivity extends AppCompatActivity {
 
                     // Write the decrypted chunk to the output stream
                     byteArrayOutputStream.write(decryptedChunk);
-
-                    // Update progress
-                    final int progress = (int) ((i + 1) * 100.0 / parts.length);
-                    runOnUiThread(() -> progressBar.setProgress(progress));
                 }
-
 
                 // Convert the collected byte data into a byte array
                 byte[] finalVideoBytes = byteArrayOutputStream.toByteArray();

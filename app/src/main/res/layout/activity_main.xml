@@ -67,6 +67,7 @@
     </LinearLayout>
     <ProgressBar
         android:id="@+id/progressBar"
+        android:layout_margin="10dp"
         style="@android:style/Widget.ProgressBar.Horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -97,7 +98,17 @@
         android:layout_height="70dp"
          />
 
-
+    <TextView
+        android:layout_margin="20dp"
+        android:id="@+id/largerFiles"
+        android:padding="12dp"
+        android:textSize="12dp"
+        android:textColor="#FFFFFF"
+        android:clickable="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:text="Have Files As Large As 100 MB? Click Here" />
 
 
 

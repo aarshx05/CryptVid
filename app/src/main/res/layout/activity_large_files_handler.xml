@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20dp"
+        android:layout_alignEnd="@id/selectButton"
+        android:layout_marginBottom="35dp"
+
+        android:layout_above="@id/selectButton"
+        android:text="Under Development " />
+
+    <Button
+        android:id="@+id/selectButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Select Video"
+        android:layout_centerInParent="true"
+        android:layout_marginBottom="16dp"/>
+
+    <Button
+        android:id="@+id/splitButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Split Video"
+        android:layout_below="@id/selectButton"
+        android:layout_centerHorizontal="true"/>
+    <Button
+        android:id="@+id/decryptButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Decrypt Video"
+        android:layout_below="@id/splitButton"
+        android:layout_centerHorizontal="true"/>
+
+</RelativeLayout>
