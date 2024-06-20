@@ -296,23 +296,7 @@ public class LargeFilesHandler extends AppCompatActivity {
 
 
 
-    private static void deleteDirectoryRecursively(File directory) {
-        File[] files = directory.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    deleteDirectoryRecursively(file);
-                } else {
-                    if (!file.delete()) {
-                        Log.e("ClearDirectory", "Failed to delete file: " + file.getAbsolutePath());
-                    }
-                }
-            }
-        }
-        if (!directory.delete()) {
-            Log.e("ClearDirectory", "Failed to delete directory: " + directory.getAbsolutePath());
-        }
-    }
+
 
 
     private void init() throws Exception {
