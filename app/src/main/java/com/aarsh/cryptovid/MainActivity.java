@@ -568,6 +568,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void convertBase64StringToVideo() {
         showProgressBar();
+        Log.d(TAG,"Started task");
         new Thread(() -> {
             try {
                 String base64String = readStringFromFile(selectedTextFileUri);
@@ -625,6 +626,7 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(this, "Error during decryption", Toast.LENGTH_SHORT).show();
                 });
             } finally {
+                Log.d(TAG,"Ended task");
                 runOnUiThread(this::hideProgressBar);
             }
         }).start();
