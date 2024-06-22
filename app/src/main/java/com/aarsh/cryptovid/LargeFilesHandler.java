@@ -84,7 +84,10 @@ public class LargeFilesHandler extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (selectedVideoUri != null) {
+
                     splitVideo(selectedVideoUri);
+                    String directoryPath = getExternalFilesDir(null) + "/VideoParts";
+                    clearDirectory(directoryPath);
                 } else {
                     Toast.makeText(LargeFilesHandler.this, "Please select a video first.", Toast.LENGTH_SHORT).show();
                 }
@@ -166,6 +169,7 @@ public class LargeFilesHandler extends AppCompatActivity {
 
             Toast.makeText(this, "Video split into parts and processed successfully.", Toast.LENGTH_SHORT).show();
 
+
         } catch (IOException e) {
             Log.e("VideoSplitter", "Error splitting video: " + e.getMessage());
         }
@@ -174,7 +178,7 @@ public class LargeFilesHandler extends AppCompatActivity {
     SecretKey key;
 
     private void compressAndConvertVideoToByteArray(Uri videoUri, int part) {
-        new Thread(() -> {
+
             try {
                 // Initialize the encryption key
                 init();
@@ -201,7 +205,7 @@ public class LargeFilesHandler extends AppCompatActivity {
 
                 // Append identifiers, encrypted key, and encrypted video to final string
                 finalStringBuilder.append("PART_").append(part).append("_DES_KEY:")
-                        .append(encryptedKey).append("|").append("Test").append("||");
+                        .append(encryptedKey).append("|").append(base64Video).append("||");
 
                 // Save the final string to a file
                 saveStringToFile(finalStringBuilder.toString(), videoUri, part);
@@ -221,11 +225,11 @@ public class LargeFilesHandler extends AppCompatActivity {
                     Toast.makeText(this, "Error during encryption", Toast.LENGTH_SHORT).show();
                 });
             }
-        }).start();
+
     }
 
     private void mergeTextFiles(String directoryPath) {
-        new Thread(() -> {
+
             try {
                 File dir = new File(directoryPath);
                 if (!dir.exists() || !dir.isDirectory()) {
@@ -289,12 +293,45 @@ public class LargeFilesHandler extends AppCompatActivity {
                     Toast.makeText(this, "Error merging text files", Toast.LENGTH_SHORT).show();
                 });
             }
-        }).start();
+
     }
 
+    private void clearDirectory(String directoryPath) {
+        File directory = new File(directoryPath);
+        if (directory.exists() && directory.isDirectory()) {
+            File[] files = directory.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isFile()) {
+                        deleteFileWithRetry(file, 3);
+                    }
+                }
+            }
+            Log.d(TAG, "Directory cleared: " + directoryPath);
+        } else {
+            Log.e(TAG, "Directory does not exist or is not a directory: " + directoryPath);
+        }
+    }
 
-
-
+    private void deleteFileWithRetry(File file, int retryCount) {
+        boolean deleted = false;
+        int attempts = 0;
+        while (!deleted && attempts < retryCount) {
+            deleted = file.delete();
+            attempts++;
+            if (!deleted) {
+                Log.e(TAG, "Failed to delete file: " + file.getAbsolutePath() + ", attempt: " + attempts);
+                try {
+                    Thread.sleep(100); // Wait for a short period before retrying
+                } catch (InterruptedException e) {
+                    Log.e(TAG, "Thread interrupted while waiting to retry file deletion", e);
+                }
+            }
+        }
+        if (!deleted) {
+            Log.e(TAG, "Failed to delete file after " + retryCount + " attempts: " + file.getAbsolutePath());
+        }
+    }
 
 
 
