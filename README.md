@@ -1,5 +1,3 @@
-Great! You can replace the placeholder with your actual YouTube link in the `README.md`. Here’s how it will look:
-
 ---
 
 # Okynus Encryption & Decryption
@@ -20,7 +18,7 @@ Okynus is your go-to app for encrypting and decrypting files with ease. Whether 
 
 Check out the video demo below to see Okynus in action!
 
-[![Okynus Demo](https://img.youtube.com/vi/YOUR_VIDEO_ID/0.jpg)](https://www.youtube.com/watch?v=5TMXQqSOY_I&list=PLnm9FfgRIB9c0JROr-XXEuVIb_xRr-Gyf)
+[![Okynus Demo](https://img.youtube.com/vi/5TMXQqSOY_I/0.jpg)](https://www.youtube.com/watch?v=5TMXQqSOY_I&list=PLnm9FfgRIB9c0JROr-XXEuVIb_xRr-Gyf)
 
 > _Click the image above to watch the demo._
 
