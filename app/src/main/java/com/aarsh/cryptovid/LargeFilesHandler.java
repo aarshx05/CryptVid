@@ -177,56 +177,7 @@ public class LargeFilesHandler extends AppCompatActivity {
 
     SecretKey key;
 
-    private void compressAndConvertVideoToByteArray(Uri videoUri, int part) {
-
-            try {
-                // Initialize the encryption key
-                init();
-
-                // Convert the video to byte array
-                byte[] videoByteArray = convertVideoFileToByteArray(videoUri);
-
-                StringBuilder finalStringBuilder = new StringBuilder();
-
-                // Get the public key
-                String pubkey = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDFfXJnodUspqqhA9Te8C59iRcV963Irh+ZldUN" +
-                        "uSjMrr6UQUCiwLCvfGrGhHI8Q/tQS3gTgiGMM7kaVrzBLDTElBF6tj5fjFA8wp1brvTL5zjYHhWr" +
-                        "Hp4UH/Uv4AIlyD5CnLUJs9CiT+V/6itQnw/5b/IV9sYaciUlzSDJvoRiQQIDAQAB";
-
-                // Encrypt the video with DES
-                byte[] encryptedVideo = encryptDES(videoByteArray);
-
-                // Convert encrypted video to Base64 string
-                String base64Video = Base64.encodeToString(encryptedVideo, Base64.DEFAULT);
-
-                // Encrypt the DES key with RSA
-                String keyString = convertSecretKeyToString(key);
-                String encryptedKey = encryptRSA(keyString, pubkey);
-
-                // Append identifiers, encrypted key, and encrypted video to final string
-                finalStringBuilder.append("PART_").append(part).append("_DES_KEY:")
-                        .append(encryptedKey).append("|").append(base64Video).append("||");
-
-                // Save the final string to a file
-                saveStringToFile(finalStringBuilder.toString(), videoUri, part);
-
-                runOnUiThread(() -> {
-                    Toast.makeText(this, "Video processed successfully", Toast.LENGTH_SHORT).show();
-                });
-
-            } catch (IOException e) {
-                Log.e(TAG, "Error compressing video: " + e.getMessage(), e);
-                runOnUiThread(() -> {
-                    Toast.makeText(this, "Error compressing video", Toast.LENGTH_SHORT).show();
-                });
-            } catch (Exception e) {
-                Log.e(TAG, "Error during encryption: " + e.getMessage(), e);
-                runOnUiThread(() -> {
-                    Toast.makeText(this, "Error during encryption", Toast.LENGTH_SHORT).show();
-                });
-            }
-
-    }
+   
 
     private void mergeTextFiles(String directoryPath) {
 
