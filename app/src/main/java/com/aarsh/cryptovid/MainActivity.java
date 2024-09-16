@@ -289,77 +289,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    private void compressAndConvertVideoToByteArray(Uri videoUri) {
-        showProgressBar();
-        Log.d(TAG,"Started");
-        new Thread(() -> {
-            try {
-                // Initialize the encryption key
-                init();
-
-                // Create a temporary file for the compressed video
-                File compressedFile = new File(getCacheDir(), "compressed_video.mp4");
-
-                // Compress the video
-                compressVideo(videoUri, compressedFile.getAbsolutePath());
-
-                // Convert the compressed video to byte array
-                byte[] videoByteArray = convertVideoFileToByteArray(compressedFile);
-
-                // Define the chunk size (e.g., 1 MB)
-                int chunkSize = 1024 * 1024;
-                int numberOfChunks = (int) Math.ceil((double) videoByteArray.length / chunkSize);
-                StringBuilder finalStringBuilder = new StringBuilder();
-
-                // Get the public key
-                String pubkey = keytxt.getText().toString();
-
-                // Encrypt each chunk
-                for (int i = 0; i < numberOfChunks; i++) {
-                    int start = i * chunkSize;
-                    int end = Math.min(videoByteArray.length, start + chunkSize);
-                    byte[] chunk = Arrays.copyOfRange(videoByteArray, start, end);
-
-                    // Encrypt the chunk with AES
-                    byte[] encryptedChunk = encryptAES(chunk);
-
-                    // Convert encrypted chunk to Base64 string
-                    String base64Chunk = Base64.encodeToString(encryptedChunk, Base64.DEFAULT);
-
-                    // Encrypt the AES key with RSA
-                    String keyString = convertSecretKeyToString(key);
-                    String encryptedKey = encryptRSA(keyString, pubkey);
-
-                    // Append identifiers, encrypted key, and encrypted chunk to final string
-                    finalStringBuilder.append("PART_").append(i + 1).append("_AES_KEY:")
-                            .append(encryptedKey).append("|").append(base64Chunk).append("||");
-                }
-
-                // Save the final string to a file
-                saveStringToFile(finalStringBuilder.toString(), createFileUri);
-
-                runOnUiThread(() -> {
-                    Toast.makeText(this, "Video processed successfully", Toast.LENGTH_SHORT).show();
-                });
-
-                // Clean up temporary file
-                compressedFile.delete();
-            } catch (IOException e) {
-                Log.e(TAG, "Error compressing video: " + e.getMessage(), e);
-                runOnUiThread(() -> {
-                    Toast.makeText(this, "Error compressing video", Toast.LENGTH_SHORT).show();
-                });
-            } catch (Exception e) {
-                Log.e(TAG, "Error during encryption: " + e.getMessage(), e);
-                runOnUiThread(() -> {
-                    Toast.makeText(this, "Error during encryption", Toast.LENGTH_SHORT).show();
-                });
-            } finally {
-                Log.d(TAG,"Ended");
-                runOnUiThread(this::hideProgressBar);
-            }
-        }).start();
-    }
+   
 
 
 
@@ -566,73 +496,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    private void convertBase64StringToVideo() {
-        showProgressBar();
-        Log.d(TAG,"Started task");
-        new Thread(() -> {
-            try {
-                String base64String = readStringFromFile(selectedTextFileUri);
-
-                // Split the base64 string into parts using the delimiter "||"
-                String[] parts = base64String.split("\\|\\|");
-
-                // Prepare a byte array output stream to collect the decrypted video data
-                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-
-                for (String part : parts) {
-                    if (part.isEmpty()) {
-                        continue;
-                    }
-
-                    // Find the part identifier and the encrypted key
-                    int separatorIndex = part.indexOf("|");
-                    if (separatorIndex == -1) {
-                        throw new IllegalArgumentException("Invalid format: Encrypted key and Base64 string separator not found");
-                    }
-
-                    String partIdentifierAndKey = part.substring(0, separatorIndex);
-                    String base64VideoChunk = part.substring(separatorIndex + 1);
-
-                    // Extract the encrypted AES key from the part
-                    String encryptedKey = partIdentifierAndKey.substring(partIdentifierAndKey.indexOf("_AES_KEY:") + "_AES_KEY:".length());
-
-                    // Decode the Base64 video chunk
-                    byte[] encryptedChunk = Base64.decode(base64VideoChunk, Base64.DEFAULT);
-
-                    // Decrypt the chunk using the provided decryptAES method
-                    byte[] decryptedChunk = decryptAES(encryptedChunk, encryptedKey);
-
-                    // Write the decrypted chunk to the output stream
-                    byteArrayOutputStream.write(decryptedChunk);
-                }
-
-                // Convert the collected byte data into a byte array
-                byte[] finalVideoBytes = byteArrayOutputStream.toByteArray();
-
-                // Save the final byte array as a video file
-                saveByteArrayAsVideo(finalVideoBytes, createFileUri);
-
-                runOnUiThread(() -> {
-                    Toast.makeText(this, "Base64 string converted to video and saved as sample.mp4", Toast.LENGTH_SHORT).show();
-                });
-            } catch (IOException e) {
-                Log.e(TAG, "Error converting Base64 string to video: " + e.getMessage(), e);
-                runOnUiThread(() -> {
-                    Toast.makeText(this, "Error converting Base64 string to video", Toast.LENGTH_SHORT).show();
-                });
-            } catch (Exception e) {
-                Log.e(TAG, "Error during decryption: " + e.getMessage(), e);
-                runOnUiThread(() -> {
-                    Toast.makeText(this, "Error during decryption", Toast.LENGTH_SHORT).show();
-                });
-            } finally {
-                Log.d(TAG,"Ended task");
-                runOnUiThread(this::hideProgressBar);
-            }
-        }).start();
-    }
-
-
+   
 
     private String readStringFromFile(Uri uri) throws IOException {
         InputStream inputStream = getContentResolver().openInputStream(uri);
